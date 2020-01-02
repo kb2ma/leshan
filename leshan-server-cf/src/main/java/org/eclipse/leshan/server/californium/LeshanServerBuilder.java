@@ -42,6 +42,7 @@ import org.eclipse.leshan.core.node.codec.LwM2mNodeDecoder;
 import org.eclipse.leshan.core.node.codec.LwM2mNodeEncoder;
 import org.eclipse.leshan.core.observation.Observation;
 import org.eclipse.leshan.core.request.exception.ClientSleepingException;
+import org.eclipse.leshan.server.californium.datastore.GraphiteWriter;
 import org.eclipse.leshan.server.californium.registration.CaliforniumRegistrationStore;
 import org.eclipse.leshan.server.californium.registration.InMemoryRegistrationStore;
 import org.eclipse.leshan.server.model.LwM2mModelProvider;
@@ -91,6 +92,8 @@ public class LeshanServerBuilder {
     private DtlsConnectorConfig.Builder dtlsConfigBuilder;
 
     private EndpointFactory endpointFactory;
+
+    private GraphiteWriter obsWriter;
 
     private boolean noSecuredEndpoint;
     private boolean noUnsecuredEndpoint;
@@ -354,6 +357,16 @@ public class LeshanServerBuilder {
     }
 
     /**
+     * Sets an optional observation writer; otherwise, one is not created.
+     * Writes observation data to Graphite time series database.
+     *
+     * @param obsWriter The writer to use
+     */
+    public void setObsWriter(GraphiteWriter obsWriter) {
+        this.obsWriter = obsWriter;
+    }
+
+    /**
      * The default Californium/CoAP {@link NetworkConfig} used by the builder.
      */
     public static NetworkConfig createDefaultNetworkConfig() {
@@ -524,7 +537,8 @@ public class LeshanServerBuilder {
         }
 
         return createServer(unsecuredEndpoint, securedEndpoint, registrationStore, securityStore, authorizer,
-                modelProvider, encoder, decoder, coapConfig, noQueueMode, awakeTimeProvider, registrationIdProvider);
+                modelProvider, encoder, decoder, coapConfig, noQueueMode, awakeTimeProvider, registrationIdProvider,
+                obsWriter);
     }
 
     /**
@@ -554,6 +568,7 @@ public class LeshanServerBuilder {
      * @param awakeTimeProvider to set the client awake time if queue mode is used.
      * @param registrationIdProvider to provide registrationId using for location-path option values on response of
      *        Register operation.
+     * @param obsWriter to write observations to Graphite; may be null
      * 
      * @return the LWM2M server
      */
@@ -561,8 +576,9 @@ public class LeshanServerBuilder {
             CaliforniumRegistrationStore registrationStore, SecurityStore securityStore, Authorizer authorizer,
             LwM2mModelProvider modelProvider, LwM2mNodeEncoder encoder, LwM2mNodeDecoder decoder,
             NetworkConfig coapConfig, boolean noQueueMode, ClientAwakeTimeProvider awakeTimeProvider,
-            RegistrationIdProvider registrationIdProvider) {
+            RegistrationIdProvider registrationIdProvider, GraphiteWriter obsWriter) {
         return new LeshanServer(unsecuredEndpoint, securedEndpoint, registrationStore, securityStore, authorizer,
-                modelProvider, encoder, decoder, coapConfig, noQueueMode, awakeTimeProvider, registrationIdProvider);
+                modelProvider, encoder, decoder, coapConfig, noQueueMode, awakeTimeProvider, registrationIdProvider,
+                obsWriter);
     }
 }

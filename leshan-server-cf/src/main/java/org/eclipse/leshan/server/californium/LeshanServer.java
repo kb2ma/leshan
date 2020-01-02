@@ -45,6 +45,7 @@ import org.eclipse.leshan.core.response.ResponseCallback;
 import org.eclipse.leshan.server.Destroyable;
 import org.eclipse.leshan.server.Startable;
 import org.eclipse.leshan.server.Stoppable;
+import org.eclipse.leshan.server.californium.datastore.GraphiteWriter;
 import org.eclipse.leshan.server.californium.observation.ObservationServiceImpl;
 import org.eclipse.leshan.server.californium.registration.CaliforniumRegistrationStore;
 import org.eclipse.leshan.server.californium.registration.RegisterResource;
@@ -107,6 +108,8 @@ public class LeshanServer {
     private final PresenceServiceImpl presenceService;
     private final LwM2mRequestSender requestSender;
 
+    private final GraphiteWriter obsWriter;
+
     /**
      * Initialize a server which will bind to the specified address and port.
      * <p>
@@ -130,7 +133,7 @@ public class LeshanServer {
             CaliforniumRegistrationStore registrationStore, SecurityStore securityStore, Authorizer authorizer,
             LwM2mModelProvider modelProvider, LwM2mNodeEncoder encoder, LwM2mNodeDecoder decoder,
             NetworkConfig coapConfig, boolean noQueueMode, ClientAwakeTimeProvider awakeTimeProvider,
-            RegistrationIdProvider registrationIdProvider) {
+            RegistrationIdProvider registrationIdProvider, GraphiteWriter obsWriter) {
 
         Validate.notNull(registrationStore, "registration store cannot be null");
         Validate.notNull(authorizer, "authorizer cannot be null");
@@ -166,6 +169,11 @@ public class LeshanServer {
             presenceService = null;
         } else {
             presenceService = createPresenceService(registrationService, awakeTimeProvider);
+        }
+
+        this.obsWriter = obsWriter;
+        if (obsWriter != null) {
+            obsWriter.setDataSource(observationService);
         }
 
         // define /rd resource
