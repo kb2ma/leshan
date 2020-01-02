@@ -60,6 +60,7 @@ import org.eclipse.leshan.core.node.codec.DefaultLwM2mNodeEncoder;
 import org.eclipse.leshan.core.node.codec.LwM2mNodeDecoder;
 import org.eclipse.leshan.server.californium.LeshanServer;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
+import org.eclipse.leshan.server.californium.datastore.GraphiteWriter;
 import org.eclipse.leshan.server.demo.servlet.ClientServlet;
 import org.eclipse.leshan.server.demo.servlet.EventServlet;
 import org.eclipse.leshan.server.demo.servlet.ObjectSpecServlet;
@@ -378,6 +379,9 @@ public class LeshanServerDemo {
 
         // use a magic converter to support bad type send by the UI.
         builder.setEncoder(new DefaultLwM2mNodeEncoder(new MagicLwM2mValueConverter()));
+
+        // Create Graphite observation writer
+        builder.setObsWriter(new GraphiteWriter());
 
         // Create and start LWM2M server
         LeshanServer lwServer = builder.build();
