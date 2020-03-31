@@ -418,6 +418,8 @@ public class LeshanServerNethead{
             jmdns.registerService(coapSecureServiceInfo);
         }
 
+        lwServer.getObservationService().addListener(new GraphiteWriter());
+
         // Start Jetty & Leshan
         lwServer.start();
         server.start();
