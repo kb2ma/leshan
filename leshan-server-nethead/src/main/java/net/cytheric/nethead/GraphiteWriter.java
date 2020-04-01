@@ -48,7 +48,7 @@ public final class GraphiteWriter implements ObservationListener {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         ) {
             double value = (Double)((LwM2mSingleResource)response.getContent()).getValue();
-            out.println("time.3303.0 " + df.format(value) + " " + (System.currentTimeMillis() / 1000));
+            out.println("temp.3303.0 " + df.format(value) + " " + (System.currentTimeMillis() / 1000));
         } catch (Exception e) {
             LOG.error("Can't write observation", e);
         }
