@@ -94,18 +94,25 @@ $ sudo systemctl reload apache2
 Running
 -------
 
-Ports:
+### Ports
 
 * 2003 TCP/UDP -- Plaintext input
 * 2004 TCP -- Pickle input
 * 7002 -- Cache query for output
 
-Logs:
+### Data
+
+* `/var/lib/graphite/whisper`
+
+The tree of stored metrics is below the `whisper` directory. You can review the entries to verify the expected data has been saved.
+
+### Logs
 
 * `/var/log/carbon`
 * `/var/log/apache2/graphite-web_access.log`
 * `/var/log/apache2/graphite-web_error.log`
 * `/var/log/graphite`
+`
 
 In `/var/log/carbon/console.log`, you may see lines like below. Since `storage-aggregation.conf` is optional, the lines are not an issue.
 
