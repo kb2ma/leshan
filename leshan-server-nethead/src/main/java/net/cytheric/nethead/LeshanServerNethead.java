@@ -37,6 +37,9 @@ import java.util.List;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
+import net.cytheric.nethead.entity.EntityStorage;
+import net.cytheric.nethead.tool.DeviceTool;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -160,6 +163,7 @@ public class LeshanServerNethead{
                 "Set the key store alias to use for server credentials.\nDefault: %s.\n All other alias referencing a certificate will be trusted.",
                 DEFAULT_KEYSTORE_ALIAS));
         options.addOption("ksap", "keypass", true, "Set the key store alias password to use.");
+        options.addOption("edb", "edbPath", true, "Set the SQLite entity database file path");
 
         HelpFormatter formatter = new HelpFormatter();
         formatter.setWidth(120);
@@ -228,10 +232,12 @@ public class LeshanServerNethead{
         // Get mDNS publish switch
         Boolean publishDNSSdServices = cl.hasOption("mdns");
 
+        String edbPath = cl.getOptionValue("edb");
+
         try {
             createAndStartServer(webAddress, webPort, localAddress, localPort, secureLocalAddress, secureLocalPort,
                     modelsFolderPath, redisUrl, keyStorePath, keyStoreType, keyStorePass, keyStoreAlias,
-                    keyStoreAliasPass, publishDNSSdServices, cl.hasOption("oc"));
+                    keyStoreAliasPass, publishDNSSdServices, cl.hasOption("oc"), edbPath);
         } catch (BindException e) {
             System.err.println(
                     String.format("Web port %s is already used, you could change it using 'webport' option.", webPort));
@@ -244,7 +250,8 @@ public class LeshanServerNethead{
     public static void createAndStartServer(String webAddress, int webPort, String localAddress, int localPort,
             String secureLocalAddress, int secureLocalPort, String modelsFolderPath, String redisUrl,
             String keyStorePath, String keyStoreType, String keyStorePass, String keyStoreAlias,
-            String keyStoreAliasPass, Boolean publishDNSSdServices, boolean supportDeprecatedCiphers) throws Exception {
+            String keyStoreAliasPass, Boolean publishDNSSdServices, boolean supportDeprecatedCiphers,
+            String edbPath) throws Exception {
         // Prepare LWM2M server
         LeshanServerBuilder builder = new LeshanServerBuilder();
         builder.setLocalAddress(localAddress, localPort);
@@ -418,7 +425,10 @@ public class LeshanServerNethead{
             jmdns.registerService(coapSecureServiceInfo);
         }
 
-        lwServer.getObservationService().addListener(new GraphiteWriter());
+        EntityStorage es = new EntityStorage(edbPath);
+        DeviceTool tool = new DeviceTool(es);
+        lwServer.getRegistrationService().addListener(new DeviceRegListener(tool));
+        lwServer.getObservationService().addListener(new DataObsListener());
 
         // Start Jetty & Leshan
         lwServer.start();

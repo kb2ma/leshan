@@ -1,10 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2020 Ken Bannister. All rights reserved.
+/* Copyright 2020 Ken Bannister <kb2ma@runbox.com>
  *
  * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License v2.1. See the file LICENSE in the top level
- * directory for more details.
- *******************************************************************************/
+ * General Public License v3.0. See the file LICENSE-lgpl-v3.0.md in
+ * the top level directory for more details.
+ */
 package net.cytheric.nethead;
 
 import java.io.PrintWriter;
@@ -22,9 +21,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Writes observation data to Graphite as observations are received.
  */
-public final class GraphiteWriter implements ObservationListener {
+public final class DataObsListener implements ObservationListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GraphiteWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DataObsListener.class);
 
     private final DecimalFormat df = new DecimalFormat("###.##");
 
