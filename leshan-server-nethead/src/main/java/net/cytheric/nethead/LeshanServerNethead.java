@@ -39,6 +39,7 @@ import javax.jmdns.ServiceInfo;
 
 import net.cytheric.nethead.entity.EntityStorage;
 import net.cytheric.nethead.tool.DeviceTool;
+import net.cytheric.nethead.tool.RegistrationTool;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -426,8 +427,9 @@ public class LeshanServerNethead{
         }
 
         EntityStorage es = new EntityStorage(edbPath);
-        DeviceTool tool = new DeviceTool(es);
-        lwServer.getRegistrationService().addListener(new DeviceRegListener(tool));
+        DeviceTool deviceTool = new DeviceTool(es);
+        RegistrationTool regTool = new RegistrationTool(es);
+        lwServer.getRegistrationService().addListener(new DeviceRegListener(deviceTool, regTool));
         lwServer.getObservationService().addListener(new DataObsListener());
 
         // Start Jetty & Leshan

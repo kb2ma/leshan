@@ -9,7 +9,9 @@ package net.cytheric.nethead;
 import java.util.Collection;
 
 import net.cytheric.nethead.entity.Device;
+import net.cytheric.nethead.entity.RegistrationEntity;
 import net.cytheric.nethead.tool.DeviceTool;
+import net.cytheric.nethead.tool.RegistrationTool;
 
 import org.eclipse.leshan.core.observation.Observation;
 import org.eclipse.leshan.server.registration.Registration;
@@ -26,10 +28,12 @@ public class DeviceRegListener implements RegistrationListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeviceRegListener.class);
 
-    private DeviceTool tool;
+    private DeviceTool deviceTool;
+    private RegistrationTool regTool;
 
-    public DeviceRegListener(DeviceTool tool) {
-        this.tool = tool;
+    public DeviceRegListener(DeviceTool deviceTool, RegistrationTool regTool) {
+        this.deviceTool = deviceTool;
+        this.regTool = regTool;
     }
 
     @Override
@@ -40,11 +44,16 @@ public class DeviceRegListener implements RegistrationListener {
         }
         String sn = reg.getEndpoint();
 
-        Device d = tool.findDevice(sn);
+        RegistrationEntity r = regTool.findRegistration(reg.getId());
+        if (r == null) {
+            r = regTool.addRegistration(reg);
+        }
+
+        Device d = deviceTool.findDevice(sn);
         if (d == null) {
             d = new Device();
             d.setSerialNumber(sn);
-            d = tool.addDevice(d);
+            d = deviceTool.addDevice(d);
             if (LOG.isInfoEnabled() && (d != null)) {
                 LOG.info("Registered device!");
             }

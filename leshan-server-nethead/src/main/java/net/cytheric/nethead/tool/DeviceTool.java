@@ -6,9 +6,7 @@
  */
  package net.cytheric.nethead.tool;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import net.cytheric.nethead.entity.Device;
@@ -20,15 +18,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Manages use of entity storage for a device.
  */
-public class DeviceTool {
+public class DeviceTool extends StorageTool {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeviceTool.class);
 
-    private EntityStorage es;
-    private Connection sqlConn;
-
     public DeviceTool(EntityStorage es) {
-        this.es = es;
+        super(es);
     }
 
     public Device addDevice(Device d) {
@@ -49,25 +44,16 @@ public class DeviceTool {
     public Device findDevice(String serialNumber) {
         try {
             Statement statement = getConnection().createStatement();
-            ResultSet rs = statement.executeQuery("select * from device");
+            ResultSet rs = statement.executeQuery("select serial_number from device");
 
             if (rs.next()) {
                 Device d = new Device();
-                d.setSerialNumber(rs.getString(serialNumber));
+                d.setSerialNumber(rs.getString(1));
                 return d;
             }
         } catch (Exception e) {
             LOG.error("Error finding device S/N " + serialNumber + "; " + e);
         }
         return null;
-    }
-
-    // Private methods
-
-    private Connection getConnection() throws SQLException {
-        if (sqlConn == null) {
-            sqlConn = es.createConnection();
-        }
-        return sqlConn;
     }
 }
