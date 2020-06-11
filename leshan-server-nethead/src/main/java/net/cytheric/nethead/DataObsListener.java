@@ -43,11 +43,13 @@ public final class DataObsListener implements ObservationListener {
         }
 
         try (
+            //Socket socket = new Socket("2601:18e:c501:6670:1bae:909f:de25:9a2e", 2003);
             Socket socket = new Socket("localhost", 2003);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         ) {
             double value = (Double)((LwM2mSingleResource)response.getContent()).getValue();
-            out.println("temp.3303.0 " + df.format(value) + " " + (System.currentTimeMillis() / 1000));
+            out.println("device." + registration.getEndpoint() + ".object.3303.0 "
+                        + df.format(value) + " " + (System.currentTimeMillis() / 1000));
         } catch (Exception e) {
             LOG.error("Can't write observation", e);
         }
